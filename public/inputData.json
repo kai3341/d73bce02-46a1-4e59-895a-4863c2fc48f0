@@ -1,0 +1,133 @@
+{
+  "nodes": [
+    {
+      "id": "A",
+      "data": {},
+      "type": "group",
+      "position": {
+        "x": 0,
+        "y": 0
+      },
+      "style": {
+        "width": 400,
+        "height": 200
+      }
+    },
+    {
+      "id": "B",
+      "data": {},
+      "type": "group",
+      "position": {
+        "x": 0,
+        "y": 350
+      },
+      "style": {
+        "width": 400,
+        "height": 200
+      }
+    },
+    {
+      "id": "1",
+      "data": {
+        "label": "Project A API"
+      },
+      "type": "apigateway",
+      "position": {
+        "x": 200,
+        "y": 10
+      },
+      "parentNode": "A",
+      "extent": "parent"
+    },
+    {
+      "id": "2",
+      "data": {
+        "label": "Project B API"
+      },
+      "type": "apigateway",
+      "position": {
+        "x": 200,
+        "y": 10
+      },
+      "parentNode": "B",
+      "extent": "parent"
+    },
+    {
+      "id": "3",
+      "data": {},
+      "type": "frontend",
+      "position": {
+        "x": 10,
+        "y": 10
+      },
+      "parentNode": "A",
+      "extent": "parent"
+    },
+    {
+      "id": "4",
+      "data": {},
+      "type": "frontend",
+      "position": {
+        "x": 10,
+        "y": 10
+      },
+      "parentNode": "B",
+      "extent": "parent"
+    },
+    {
+      "id": "5",
+      "data": {
+        "label": "Project A DB"
+      },
+      "type": "database",
+      "position": {
+        "x": 50,
+        "y": 110
+      },
+      "parentNode": "A",
+      "extent": "parent"
+    },
+    {
+      "id": "6",
+      "data": {
+        "label": "Project B DB"
+      },
+      "type": "database",
+      "position": {
+        "x": 50,
+        "y": 110
+      },
+      "parentNode": "B",
+      "extent": "parent"
+    }
+  ],
+  "edges": [
+    {
+      "id": "e1-2",
+      "source": "1",
+      "target": "2"
+    },
+    {
+      "id": "e3-1",
+      "source": "3",
+      "target": "1"
+    },
+    {
+      "id": "e4-2",
+      "source": "4",
+      "target": "2"
+    },
+    {
+      "id": "e1-5",
+      "source": "1",
+      "target": "5",
+      "sourceHandle": "private"
+    },
+    {
+      "id": "e2-6",
+      "source": "2",
+      "target": "6",
+      "sourceHandle": "private"
+    }
+  ]
+}
