@@ -16,9 +16,19 @@
   pointer-events: visible;
 }
 
-.page-projects-drawer-content > .close:hover {
-  color: red;
+.page-projects-drawer-content {
+  width: 250px;
+}
 
+.page-projects-drawer-content-controls {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.page-projects-drawer-content-controls > .close:hover {
+  color: red;
 }
 
 .clickable {

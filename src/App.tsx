@@ -16,11 +16,7 @@ function App() {
     [],
   );
 
-  return data === null
-  ? (
-    <>
-    </>
-  )
+  return data === null ? null
   : (
     <Projects data={data} />
   );
