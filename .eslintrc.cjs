@@ -17,6 +17,7 @@ module.exports = {
       { allowConstantExport: true },
     ],
     "react/react-in-jsx-scope": "off",
+    "@typescript-eslint/no-empty-function": "off",
     // "react/prop-types": [2, { "ignore": ["className"] }],
   },
 }

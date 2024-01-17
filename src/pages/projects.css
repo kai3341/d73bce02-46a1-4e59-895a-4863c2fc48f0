@@ -13,7 +13,7 @@
 }
 
 .page-projects > .drawer > * {
-  pointer-events: visible;
+  pointer-events: all;
 }
 
 .page-projects-drawer-content {
@@ -33,4 +33,11 @@
 
 .clickable {
   cursor: pointer;
+}
+
+.page-projects-drawer-content-components > .react-flow__node {
+  position: unset;
+  width: fit-content;
+  margin: 5px;
+  -webkit-user-drag: element;
 }

@@ -1,9 +1,16 @@
-import React, { useCallback, useState } from 'react';
+import React, {
+  useCallback,
+  useState,
+} from 'react';
+
 import ReactFlow, {
+  ReactFlowProvider,
+  ReactFlowInstance,
   addEdge,
   // SelectionMode,
   useEdgesState,
   useNodesState,
+  useReactFlow,
   // applyNodeChanges,
   // applyEdgeChanges,
   Node,
@@ -17,6 +24,7 @@ import ReactFlow, {
   BackgroundVariant,
   Controls,
   NodeTypes,
+  NodeProps,
 } from 'reactflow';
 
 import { saveAs } from 'file-saver';
@@ -34,19 +42,26 @@ import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 import "./projects.css";
 
 // TODO: add babel-plugin-root-import
-import { APIGateway, APIGatewayData } from '../components/flow/APIGateway';
-import { FrontEnd, FrontEndData } from '../components/flow/FrontEnd';
-import { Database, DatabaseData } from '../components/flow/Database';
+import {
+  FlowNodes,
+  FlowNodesData,
+  myFlowComponentAttrs,
+  myFlowComponentAttrsType,
+  FlowNodeTypeMap,
+} from '../components/flow';
 
 import { HiddenInput } from '../components/HiddenInput/HiddenInput';
 
+// import { NodesContext, EdgesContext } from '../context';
+
+
 export type InputFlowData = {
-  nodes: Node<APIGatewayData|FrontEndData|DatabaseData>[],
+  nodes: Node<FlowNodesData>[],
   edges: Edge[],
 }
 
 export type ProjectsProps = {
-  data: InputFlowData,
+  data?: InputFlowData,
 }
 
 
@@ -58,16 +73,55 @@ const defaultEdgeOptions: DefaultEdgeOptions = {
   animated: true,
 };
 
-const nodeTypes: NodeTypes = {
-  apigateway: APIGateway,
-  frontend: FrontEnd,
-  database: Database,
+
+const flowNodeTypes: FlowNodeTypeMap<NodeProps> = {};
+
+FlowNodes.forEach((item) => {
+  const meta = item[myFlowComponentAttrs];
+  flowNodeTypes[meta.key] = item;
+})
+
+const nodeTypes = flowNodeTypes as NodeTypes;
+
+const dataTransferKey = 'application/reactflow';
+const drogDropEffectName = 'move';
+
+// No dependensies => move outside the component
+const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
+  event.preventDefault();
+  event.dataTransfer.dropEffect = drogDropEffectName;
 };
 
-export function Projects({ data }: ProjectsProps) {
+const onDragStart = (event: React.DragEvent<HTMLDivElement>, nodeType: string) => {
+  event.dataTransfer.setData(dataTransferKey, nodeType);
+  event.dataTransfer.effectAllowed = drogDropEffectName;
+};
+
+
+const renderedFlowNodes = FlowNodes.map((node) => {
+  const meta = node[myFlowComponentAttrs];
+  const { key, Body } = meta;
+  return (
+    <div
+      className="react-flow__node"
+      key={key}
+      onDragStart={(event) => onDragStart(event, key)}
+      draggable="true"
+    >
+      <Body />
+    </div>
+  )
+})
+
+export function ProjectsInner({
+  data = { nodes: [], edges: []},
+}: ProjectsProps) {
   const [ drawerState, setDrawerState ] = useState<boolean>(true);
   const [nodes, setNodes, onNodesChange] = useNodesState(data.nodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(data.edges);
+  const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance|null>(null);
+  const [ nodeID, setNodeID ] = useState<number>(1);
+  const { getIntersectingNodes } = useReactFlow();
 
   const onConnect = useCallback(
     (connection: Connection) => setEdges((eds) => addEdge(connection, eds)),
@@ -77,85 +131,185 @@ export function Projects({ data }: ProjectsProps) {
   const openDrawer = useCallback(() => setDrawerState(true), [setDrawerState]);
   const closeDrawer = useCallback(() => setDrawerState(false), [setDrawerState]);
 
+  const nextNodeID = () => {
+    setNodeID(nodeID+1);
+    return nodeID.toString();
+  }
+
+  const onDrop = (event: React.DragEvent<HTMLDivElement>) => {
+    if (reactFlowInstance === null) return;
+
+    event.preventDefault();
+
+    const type = event.dataTransfer.getData(dataTransferKey);
+
+    // It looks type is never undefined, so check is redundant
+    if (type === undefined || !type) return;
+
+    const nodeElement = flowNodeTypes[type];
+    const meta = nodeElement[myFlowComponentAttrs] as myFlowComponentAttrsType;
+
+    const position = reactFlowInstance.screenToFlowPosition({
+      x: event.clientX,
+      y: event.clientY,
+    });
+
+    const newNodeID = nextNodeID();
+
+    const newNode = {
+      id: newNodeID,
+      type,
+      position,
+      data: {},
+      ...meta.defaultProps,
+    };  
+
+    setNodes((nodes) => nodes.concat(newNode));
+  };
+
+  const onNodeDragStop = useCallback((event: React.MouseEvent<Element, MouseEvent>, draggedNode: Node) => {
+    const intersections = getIntersectingNodes(draggedNode);
+
+    if (!intersections.length) return;
+
+    const intersectedIDs = new Set(intersections.map(n => n.id));
+
+    let firstGroup: Node|null = null;
+
+    for (const node of intersections) {
+      const nodeID = node.id;
+      if (intersectedIDs.has(nodeID) && node.type === 'group') {
+        firstGroup = node;
+        break;
+      }
+    }
+
+    if (firstGroup === null) return;
+    if (draggedNode.parentNode === firstGroup.id) return;
+
+    setNodes((nodes) => {
+      const draggedNodeID = draggedNode.id;
+      const draggedNodeIDX = nodes.findIndex(node => node.id === draggedNodeID);
+      const newNodes = [...nodes];
+      const position = {...draggedNode.position};
+      const firstGropuPosition = (firstGroup as Node).position;
+
+      position.x -= firstGropuPosition.x;
+      position.y -= firstGropuPosition.y;
+
+      if(position.x < 0) position.x = 0;
+      if(position.y < 0) position.y = 0;
+
+      newNodes[draggedNodeIDX] = {
+        ...draggedNode,
+        parentNode: (firstGroup as Node).id,
+        extent: "parent",
+        position,
+      }
+      return newNodes;
+    })
+    },
+    [getIntersectingNodes, setNodes],
+  );
+
+
   return (
-    <div className="page-projects">
-      <MenuIcon
-        className="menu clickable"
-        onClick={openDrawer}
-      />
-      <Drawer
-        className="drawer"
-        anchor="left"
-        open={drawerState}
-        hideBackdrop={true}
-        disablePortal={true}
-      >
-    <Box className="page-projects-drawer-content">
-      <Box className="page-projects-drawer-content-controls">
-        <Box>
-          <IconButton component="label">
-            <HiddenInput type="file" onChange={async (event) => {
-              const { files } = event.target;
-              if (files === null) return;
-              // FIXME: handle multiple files (?)
-              const file = files[0];
-              // FIXME: handle invalid files
-              const uploadData = await file.text();
-              const uploadJSON = JSON.parse(uploadData) as InputFlowData;
-              setNodes(uploadJSON.nodes);
-              setEdges(uploadJSON.edges);
-            }}>
-              <UploadFileIcon/>
-            </HiddenInput>
-          </IconButton>
-          <IconButton
-            onClick={() => {
-              const saveData = { nodes, edges };
-              const saveBlob = new Blob(
-                [JSON.stringify(saveData)],
-                { type: "application/json;charset=utf-8" },
-              );
-              // FIXME: filename = project_name + ext
-              saveAs(saveBlob, "flowdata.json");
-            }}
+    // <NodesContext.Provider value={{nodes, setNodes, onNodesChange}}>
+    //   <EdgesContext.Provider value={{edges, setEdges, onEdgesChange}}>
+        <div className="page-projects">
+          <MenuIcon
+            className="menu clickable"
+            onClick={openDrawer}
+          />
+          <Drawer
+            className="drawer"
+            anchor="left"
+            open={drawerState}
+            hideBackdrop={true}
+            disablePortal={true}
           >
-            <SaveAltIcon />
-          </IconButton>
-          <IconButton onClick={() => {
-            // FIXME: actually we have to open modal and ask does the user sure
-            setNodes([]);
-            setEdges([]);
-          }}>
-            <DeleteForeverIcon color="warning" />
-          </IconButton>
+        <Box className="page-projects-drawer-content">
+          <Box className="page-projects-drawer-content-controls">
+            <Box>
+              <IconButton component="label">
+                <HiddenInput type="file" onChange={async (event) => {
+                  const { files } = event.target;
+                  if (files === null) return;
+                  // FIXME: handle multiple files (?)
+                  const file = files[0];
+                  // FIXME: handle invalid files
+                  const uploadData = await file.text();
+                  const uploadJSON = JSON.parse(uploadData) as InputFlowData;
+                  setNodes(uploadJSON.nodes);
+                  setEdges(uploadJSON.edges);
+                }}>
+                  <UploadFileIcon/>
+                </HiddenInput>
+              </IconButton>
+              <IconButton
+                onClick={() => {
+                  const saveData = { nodes, edges };
+                  const saveBlob = new Blob(
+                    [JSON.stringify(saveData)],
+                    { type: "application/json;charset=utf-8" },
+                  );
+                  // FIXME: filename = project_name + ext
+                  saveAs(saveBlob, "flowdata.json");
+                }}
+              >
+                <SaveAltIcon />
+              </IconButton>
+              <IconButton onClick={() => {
+                // FIXME: actually we have to open modal and ask does the user sure
+                setNodes([]);
+                setEdges([]);
+              }}>
+                <DeleteForeverIcon color="warning" />
+              </IconButton>
+            </Box>
+            <CloseIcon
+              className="close clickable"
+              onClick={closeDrawer}
+            />
+          </Box>
+            <Box className="page-projects-drawer-content-components">
+              {renderedFlowNodes}
+            </Box>
         </Box>
-        <CloseIcon
-          className="close clickable"
-          onClick={closeDrawer}
-        />
-      </Box>
-        It should be ribbon tabs with `Components` and `Edges`
-    </Box>
-      </Drawer>
-      <ReactFlow
-        nodes={nodes}
-        edges={edges}
-        onNodesChange={onNodesChange}
-        onEdgesChange={onEdgesChange}
-        onConnect={onConnect}
-        fitView
-        fitViewOptions={fitViewOptions}
-        defaultEdgeOptions={defaultEdgeOptions}
-        nodeTypes={nodeTypes}
-      >
-        <Background
-          variant={BackgroundVariant.Lines}
-          lineWidth={2}
-        />
-        <Controls
-          position='bottom-right'
-        />
-      </ReactFlow>
-    </div>
+          </Drawer>
+          <ReactFlow
+            nodes={nodes}
+            edges={edges}
+            onNodesChange={onNodesChange}
+            onEdgesChange={onEdgesChange}
+            onConnect={onConnect}
+            fitView
+            fitViewOptions={fitViewOptions}
+            defaultEdgeOptions={defaultEdgeOptions}
+            nodeTypes={nodeTypes}
+            onInit={setReactFlowInstance}
+            onDrop={onDrop}
+            onDragOver={onDragOver}
+            onNodeDragStop={onNodeDragStop}
+          >
+            <Background
+              variant={BackgroundVariant.Lines}
+              lineWidth={2}
+            />
+            <Controls
+              position='bottom-right'
+            />
+          </ReactFlow>
+        </div>
+    //   </EdgesContext.Provider>
+    // </NodesContext.Provider>
+  )
+}
+
+export function Projects(props: ProjectsProps) {
+  return (
+    <ReactFlowProvider>
+      <ProjectsInner {...props} />
+    </ReactFlowProvider>
   )
 }

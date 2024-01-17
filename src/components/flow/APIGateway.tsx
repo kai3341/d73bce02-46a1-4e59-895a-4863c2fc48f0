@@ -9,27 +9,46 @@ import Avatar from '@mui/material/Avatar';
 import ApiIcon from '@mui/icons-material/Api';
 // import MoreVertIcon from '@mui/icons-material/MoreVert';
 
+import { myFlowComponentAttrs, myFlowComponentAttrsType } from './constants';
+
 export type APIGatewayData = {
-  label: string,
+  label?: string,
 }
+
+export function APIGatewayBody (props: APIGatewayData) {
+  const {
+    label = "API Gateway",
+  } = props;
+  return (
+    <Card>
+      <CardHeader
+        avatar={<Avatar><ApiIcon /></Avatar>}
+        title={label}
+        // action={
+        //   <IconButton aria-label="settings">
+        //     <MoreVertIcon />
+        //   </IconButton>
+        // }
+      />
+  </Card>
+  )
+}
+
 
 export function APIGateway(props: NodeProps<APIGatewayData>) {
   return (
     <>
-      <Card>
-        <CardHeader
-          avatar={<Avatar><ApiIcon /></Avatar>}
-          title={props.data.label}
-          // action={
-          //   <IconButton aria-label="settings">
-          //     <MoreVertIcon />
-          //   </IconButton>
-          // }
-        />
-      </Card>
+      <APIGatewayBody {...props.data} />
       <Handle type="target" position={Position.Left} id="in" />
       <Handle type="source" position={Position.Right} id="out" />
       <Handle type="source" position={Position.Bottom} id="private" />
     </>
   )
 }
+
+const meta: myFlowComponentAttrsType = {
+  key: "apigateway",
+  Body: APIGatewayBody,
+};
+
+APIGateway[myFlowComponentAttrs] = meta;
