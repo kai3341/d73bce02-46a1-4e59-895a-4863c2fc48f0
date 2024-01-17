@@ -171,6 +171,8 @@ export function ProjectsInner({
     const intersections = getIntersectingNodes(draggedNode);
 
     if (!intersections.length) return;
+
+    // last intersection is the deepest nested node
     intersections.reverse();
 
     const intersectedIDs = new Set(intersections.map(n => n.id));

@@ -16,10 +16,8 @@ export class NodeSorter {
   }
 
   static readonly sort = (nodes: Node[]) => {
-    console.log([...nodes])
     const self = new this(nodes)
     nodes.sort(self.compare)
-    console.log(nodes)
     return nodes
   }
 
