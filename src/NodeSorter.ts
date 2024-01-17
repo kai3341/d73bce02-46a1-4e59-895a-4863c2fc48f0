@@ -6,7 +6,6 @@ const group = 'group';
 export class NodeSorter {
   // readonly ["constructor"]: typeof NodeSorter
 
-  nodes: Node[]
   nodeMap: Map<string, Node>
 
   static readonly buildNodeMap = (nodes: Node[]) => {
@@ -21,8 +20,18 @@ export class NodeSorter {
     return nodes
   }
 
+  isParent = (a: Node, b: Node) => {
+    const bID = b.id;
+    while (a.parentNode) {
+      if (a.parentNode === bID) return true;
+      const maybeA = this.nodeMap.get(a.parentNode);
+      if (maybeA === undefined) return false;
+      a = maybeA;
+    }
+    return
+  }
+
   constructor(nodes: Node[]) {
-    this.nodes = nodes;
     this.nodeMap = ThisConstructor.buildNodeMap(nodes);
   }
 

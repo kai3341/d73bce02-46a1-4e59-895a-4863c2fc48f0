@@ -167,7 +167,7 @@ export function ProjectsInner({
     });
   };
 
-  const onNodeDragStop = useCallback((event: React.MouseEvent<Element, MouseEvent>, draggedNode: Node) => {
+  const onNodeDragStop = useCallback((event: React.MouseEvent<Element, MouseEvent>, draggedNode: Node, nodes: Node[]) => {
     const intersections = getIntersectingNodes(draggedNode);
 
     if (!intersections.length) return;
@@ -188,8 +188,10 @@ export function ProjectsInner({
     }
 
     if (firstGroup === null) return;
-    if (draggedNode.parentNode === firstGroup.id) return;
-    if (firstGroup.parentNode === draggedNode.id) return;
+
+    const nodeSorter = new NodeSorter(nodes);
+    if (nodeSorter.isParent(draggedNode, firstGroup)) return;
+    if (nodeSorter.isParent(firstGroup, draggedNode)) return;
 
     setNodes((nodes) => {
       const firstGroup_ = firstGroup as Node;
