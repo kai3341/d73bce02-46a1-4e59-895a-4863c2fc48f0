@@ -1,13 +1,13 @@
 {
   "files": {
-    "main.css": "https://kai3341.github.io/d73bce02-46a1-4e59-895a-4863c2fc48f0/static/css/main.861d0d48.css",
-    "main.js": "https://kai3341.github.io/d73bce02-46a1-4e59-895a-4863c2fc48f0/static/js/main.a91d80ef.js",
+    "main.css": "https://kai3341.github.io/d73bce02-46a1-4e59-895a-4863c2fc48f0/static/css/main.651b90bd.css",
+    "main.js": "https://kai3341.github.io/d73bce02-46a1-4e59-895a-4863c2fc48f0/static/js/main.269e322f.js",
     "index.html": "https://kai3341.github.io/d73bce02-46a1-4e59-895a-4863c2fc48f0/index.html",
-    "main.861d0d48.css.map": "https://kai3341.github.io/d73bce02-46a1-4e59-895a-4863c2fc48f0/static/css/main.861d0d48.css.map",
-    "main.a91d80ef.js.map": "https://kai3341.github.io/d73bce02-46a1-4e59-895a-4863c2fc48f0/static/js/main.a91d80ef.js.map"
+    "main.651b90bd.css.map": "https://kai3341.github.io/d73bce02-46a1-4e59-895a-4863c2fc48f0/static/css/main.651b90bd.css.map",
+    "main.269e322f.js.map": "https://kai3341.github.io/d73bce02-46a1-4e59-895a-4863c2fc48f0/static/js/main.269e322f.js.map"
   },
   "entrypoints": [
-    "static/css/main.861d0d48.css",
-    "static/js/main.a91d80ef.js"
+    "static/css/main.651b90bd.css",
+    "static/js/main.269e322f.js"
   ]
 }
