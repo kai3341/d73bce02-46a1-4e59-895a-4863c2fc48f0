@@ -7,16 +7,11 @@ import ReactFlow, {
   ReactFlowProvider,
   ReactFlowInstance,
   addEdge,
-  // SelectionMode,
   useEdgesState,
   useNodesState,
   useReactFlow,
-  // applyNodeChanges,
-  // applyEdgeChanges,
   Node,
   Edge,
-  // NodeChange,
-  // EdgeChange,
   Connection,
   FitViewOptions,
   DefaultEdgeOptions,
@@ -52,7 +47,7 @@ import {
 
 import { HiddenInput } from '../components/HiddenInput/HiddenInput';
 
-// import { NodesContext, EdgesContext } from '../context';
+import { NodeSorter } from '../NodeSorter';
 
 
 export type InputFlowData = {
@@ -85,6 +80,7 @@ const nodeTypes = flowNodeTypes as NodeTypes;
 
 const dataTransferKey = 'application/reactflow';
 const drogDropEffectName = 'move';
+const group = "group";
 
 // No dependensies => move outside the component
 const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
@@ -164,13 +160,18 @@ export function ProjectsInner({
       ...meta.defaultProps,
     };  
 
-    setNodes((nodes) => nodes.concat(newNode));
+    setNodes((nodes) => {
+      const newNodes = nodes.concat(newNode);
+      if (type === group) NodeSorter.sort(newNodes);
+      return newNodes;
+    });
   };
 
   const onNodeDragStop = useCallback((event: React.MouseEvent<Element, MouseEvent>, draggedNode: Node) => {
     const intersections = getIntersectingNodes(draggedNode);
 
     if (!intersections.length) return;
+    intersections.reverse();
 
     const intersectedIDs = new Set(intersections.map(n => n.id));
 
@@ -178,7 +179,7 @@ export function ProjectsInner({
 
     for (const node of intersections) {
       const nodeID = node.id;
-      if (intersectedIDs.has(nodeID) && node.type === 'group') {
+      if (intersectedIDs.has(nodeID) && node.type === group) {
         firstGroup = node;
         break;
       }
@@ -186,13 +187,15 @@ export function ProjectsInner({
 
     if (firstGroup === null) return;
     if (draggedNode.parentNode === firstGroup.id) return;
+    if (firstGroup.parentNode === draggedNode.id) return;
 
     setNodes((nodes) => {
+      const firstGroup_ = firstGroup as Node;
       const draggedNodeID = draggedNode.id;
       const draggedNodeIDX = nodes.findIndex(node => node.id === draggedNodeID);
       const newNodes = [...nodes];
       const position = {...draggedNode.position};
-      const firstGropuPosition = (firstGroup as Node).position;
+      const firstGropuPosition = firstGroup_.position;
 
       position.x -= firstGropuPosition.x;
       position.y -= firstGropuPosition.y;
@@ -200,12 +203,18 @@ export function ProjectsInner({
       if(position.x < 0) position.x = 0;
       if(position.y < 0) position.y = 0;
 
+      if(firstGroup_.width && position.x > firstGroup_.width) position.x = firstGroup_.width;
+      if(firstGroup_.height && position.y > firstGroup_.height) position.y = firstGroup_.height;
+
       newNodes[draggedNodeIDX] = {
         ...draggedNode,
-        parentNode: (firstGroup as Node).id,
+        parentNode: firstGroup_.id,
         extent: "parent",
         position,
-      }
+      };
+
+      NodeSorter.sort(newNodes);
+
       return newNodes;
     })
     },
@@ -214,95 +223,91 @@ export function ProjectsInner({
 
 
   return (
-    // <NodesContext.Provider value={{nodes, setNodes, onNodesChange}}>
-    //   <EdgesContext.Provider value={{edges, setEdges, onEdgesChange}}>
-        <div className="page-projects">
-          <MenuIcon
-            className="menu clickable"
-            onClick={openDrawer}
-          />
-          <Drawer
-            className="drawer"
-            anchor="left"
-            open={drawerState}
-            hideBackdrop={true}
-            disablePortal={true}
+    <div className="page-projects">
+      <MenuIcon
+        className="menu clickable"
+        onClick={openDrawer}
+      />
+      <Drawer
+        className="drawer"
+        anchor="left"
+        open={drawerState}
+        hideBackdrop={true}
+        disablePortal={true}
+      >
+    <Box className="page-projects-drawer-content">
+      <Box className="page-projects-drawer-content-controls">
+        <Box>
+          <IconButton component="label">
+            <HiddenInput type="file" onChange={async (event) => {
+              const { files } = event.target;
+              if (files === null) return;
+              // FIXME: handle multiple files (?)
+              const file = files[0];
+              // FIXME: handle invalid files
+              const uploadData = await file.text();
+              const uploadJSON = JSON.parse(uploadData) as InputFlowData;
+              setNodes(uploadJSON.nodes);
+              setEdges(uploadJSON.edges);
+            }}>
+              <UploadFileIcon/>
+            </HiddenInput>
+          </IconButton>
+          <IconButton
+            onClick={() => {
+              const saveData = { nodes, edges };
+              const saveBlob = new Blob(
+                [JSON.stringify(saveData)],
+                { type: "application/json;charset=utf-8" },
+              );
+              // FIXME: filename = project_name + ext
+              saveAs(saveBlob, "flowdata.json");
+            }}
           >
-        <Box className="page-projects-drawer-content">
-          <Box className="page-projects-drawer-content-controls">
-            <Box>
-              <IconButton component="label">
-                <HiddenInput type="file" onChange={async (event) => {
-                  const { files } = event.target;
-                  if (files === null) return;
-                  // FIXME: handle multiple files (?)
-                  const file = files[0];
-                  // FIXME: handle invalid files
-                  const uploadData = await file.text();
-                  const uploadJSON = JSON.parse(uploadData) as InputFlowData;
-                  setNodes(uploadJSON.nodes);
-                  setEdges(uploadJSON.edges);
-                }}>
-                  <UploadFileIcon/>
-                </HiddenInput>
-              </IconButton>
-              <IconButton
-                onClick={() => {
-                  const saveData = { nodes, edges };
-                  const saveBlob = new Blob(
-                    [JSON.stringify(saveData)],
-                    { type: "application/json;charset=utf-8" },
-                  );
-                  // FIXME: filename = project_name + ext
-                  saveAs(saveBlob, "flowdata.json");
-                }}
-              >
-                <SaveAltIcon />
-              </IconButton>
-              <IconButton onClick={() => {
-                // FIXME: actually we have to open modal and ask does the user sure
-                setNodes([]);
-                setEdges([]);
-              }}>
-                <DeleteForeverIcon color="warning" />
-              </IconButton>
-            </Box>
-            <CloseIcon
-              className="close clickable"
-              onClick={closeDrawer}
-            />
-          </Box>
-            <Box className="page-projects-drawer-content-components">
-              {renderedFlowNodes}
-            </Box>
+            <SaveAltIcon />
+          </IconButton>
+          <IconButton onClick={() => {
+            // FIXME: actually we have to open modal and ask does the user sure
+            setNodes([]);
+            setEdges([]);
+          }}>
+            <DeleteForeverIcon color="warning" />
+          </IconButton>
         </Box>
-          </Drawer>
-          <ReactFlow
-            nodes={nodes}
-            edges={edges}
-            onNodesChange={onNodesChange}
-            onEdgesChange={onEdgesChange}
-            onConnect={onConnect}
-            fitView
-            fitViewOptions={fitViewOptions}
-            defaultEdgeOptions={defaultEdgeOptions}
-            nodeTypes={nodeTypes}
-            onInit={setReactFlowInstance}
-            onDrop={onDrop}
-            onDragOver={onDragOver}
-            onNodeDragStop={onNodeDragStop}
-          >
-            <Background
-              variant={BackgroundVariant.Lines}
-              lineWidth={2}
-            />
-            <Controls
-              position='bottom-right'
-            />
-          </ReactFlow>
-        </div>
-    //   </EdgesContext.Provider>
-    // </NodesContext.Provider>
+        <CloseIcon
+          className="close clickable"
+          onClick={closeDrawer}
+        />
+      </Box>
+        <Box className="page-projects-drawer-content-components">
+          {renderedFlowNodes}
+        </Box>
+    </Box>
+      </Drawer>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        fitView
+        fitViewOptions={fitViewOptions}
+        defaultEdgeOptions={defaultEdgeOptions}
+        nodeTypes={nodeTypes}
+        onInit={setReactFlowInstance}
+        onDrop={onDrop}
+        onDragOver={onDragOver}
+        onNodeDragStop={onNodeDragStop}
+      >
+        <Background
+          variant={BackgroundVariant.Lines}
+          lineWidth={2}
+        />
+        <Controls
+          position='bottom-right'
+        />
+      </ReactFlow>
+    </div>
   )
 }
 
