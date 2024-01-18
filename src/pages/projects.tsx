@@ -43,11 +43,11 @@ import {
   myFlowComponentAttrs,
   myFlowComponentAttrsType,
   FlowNodeTypeMap,
-} from '../components/flow';
+} from '~/components/flow';
 
-import { HiddenInput } from '../components/HiddenInput/HiddenInput';
+import { HiddenInput } from '~/components/HiddenInput/HiddenInput';
 
-import { NodeSorter } from '../NodeSorter';
+import { NodeSorter } from '~/NodeSorter';
 
 
 export type InputFlowData = {

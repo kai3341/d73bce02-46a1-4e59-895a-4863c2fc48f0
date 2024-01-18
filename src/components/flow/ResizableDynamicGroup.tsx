@@ -33,7 +33,7 @@ const meta: myFlowComponentAttrsType = {
   key: "group",
   Body: ResizableDynamicGroupBody,
   defaultProps: {
-    style: { minWidth: 400, minHeight: 200 },
+    style: { width: 400, height: 200 },
   },
 };
 

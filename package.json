@@ -16,9 +16,12 @@
     "@types/node": "^16.18.71",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
+    "babel-plugin-root-import": "^6.6.0",
     "babel-preset-react-app": "^10.0.1",
+    "customize-cra": "^1.0.0",
     "file-saver": "^2.0.5",
     "react": "^18.2.0",
+    "react-app-rewired": "^2.2.1",
     "react-dom": "^18.2.0",
     "react-scripts": "5.0.1",
     "reactflow": "^11.10.1",
@@ -26,12 +29,11 @@
     "web-vitals": "^2.1.4"
   },
   "scripts": {
-    "start": "react-scripts start",
-    "build": "react-scripts build",
-    "test": "react-scripts test",
-    "eject": "react-scripts eject",
-    "predeploy": "npm run build",
-    "deploy": "gh-pages -d build"
+    "start": "react-app-rewired start",
+    "build": "react-app-rewired build",
+    "test": "react-app-rewired test",
+    "eject": "react-app-rewired eject",
+    "deploy": "node .deploy.js"
   },
   "eslintConfig": {
     "extends": [
