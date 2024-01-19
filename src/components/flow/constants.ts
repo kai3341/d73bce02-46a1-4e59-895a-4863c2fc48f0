@@ -15,3 +15,7 @@ type MyMixin = {
 };
 
 export type MyMemoExoticComponent<T> = MemoExoticComponent<FC<T>> & MyMixin
+
+export const dataTransferKey = 'application/reactflow';
+export const drogDropEffectName = 'move';
+export const group = "group";

@@ -1,6 +1,6 @@
 import { Node } from "reactflow";
 
-const group = 'group';
+import { group } from "~/components/flow/constants";
 
 
 export class NodeSorter {

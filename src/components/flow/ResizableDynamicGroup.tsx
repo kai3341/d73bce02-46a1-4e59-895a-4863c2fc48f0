@@ -8,6 +8,7 @@ import {
   myFlowComponentAttrs,
   myFlowComponentAttrsType,
   MyMemoExoticComponent,
+  group,
 } from './constants';
 
 
@@ -30,7 +31,7 @@ function ResizableDynamicGroup_({ selected }: ResizableDynamicGroupProps) {
 export const ResizableDynamicGroup = memo(ResizableDynamicGroup_) as MyMemoExoticComponent<ResizableDynamicGroupProps>;
 
 const meta: myFlowComponentAttrsType = {
-  key: "group",
+  key: group,
   Body: ResizableDynamicGroupBody,
   defaultProps: {
     style: { width: 400, height: 200 },
