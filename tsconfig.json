@@ -1,6 +1,7 @@
 {
   "compilerOptions": {
-    "target": "es5",
+    // "target": "es5",
+    "target": "es2015",
     "lib": [
       "dom",
       "dom.iterable",
@@ -21,7 +22,8 @@
     "jsx": "react-jsx",
     "paths": {
       "~/*": ["./src/*"],
-    }
+    },
+    "downlevelIteration": true
   },
   "include": [
     "src"
