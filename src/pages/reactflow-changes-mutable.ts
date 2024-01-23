@@ -3,12 +3,11 @@
 
 /* eslint-disable @typescript-eslint/no-explicit-any */
 // import { EdgeLookup, NodeLookup } from '@xyflow/system';
-import type { EdgeChange, NodeChange } from 'reactflow';
+import type { EdgeChange, NodeChange } from "reactflow";
 
-import type { WrappedNodes, WrappedEdges, ArrayWithInsort } from './statemgr';
+import type { WrappedNodes, WrappedEdges, ArrayWithInsort } from "./statemgr";
 
 // type AnyElements = WrappedNodes|WrappedEdges;
-
 
 export function handleParentExpand(
   updatedElements: any[],
@@ -22,10 +21,21 @@ export function handleParentExpand(
         parent.computed = {};
       }
 
-      const extendWidth = updateItem.position.x + updateItem.computed.width - parent.computed.width;
-      const extendHeight = updateItem.position.y + updateItem.computed.height - parent.computed.height;
+      const extendWidth =
+        updateItem.position.x +
+        updateItem.computed.width -
+        parent.computed.width;
+      const extendHeight =
+        updateItem.position.y +
+        updateItem.computed.height -
+        parent.computed.height;
 
-      if (extendWidth > 0 || extendHeight > 0 || updateItem.position.x < 0 || updateItem.position.y < 0) {
+      if (
+        extendWidth > 0 ||
+        extendHeight > 0 ||
+        updateItem.position.x < 0 ||
+        updateItem.position.y < 0
+      ) {
         parent.width = parent.width ?? parent.computed.width;
         parent.height = parent.height ?? parent.computed.height;
 
@@ -71,11 +81,11 @@ function applyChanges(changes: any[], elements: ArrayWithInsort<any>): any[] {
   const changesMap = new Map<any, any[]>();
 
   for (const change of changes) {
-    if (change.type === 'add') {
+    if (change.type === "add") {
       // updatedElements.push(change.item);
       elements.insort(change.item);
       continue;
-    } else if (change.type === 'remove' || change.type === 'replace') {
+    } else if (change.type === "remove" || change.type === "replace") {
       // For a 'remove' change we can safely ignore any other changes queued for
       // the same element, it's going to be removed anyway!
       changesMap.set(change.id, [change]);
@@ -104,13 +114,13 @@ function applyChanges(changes: any[], elements: ArrayWithInsort<any>): any[] {
     }
 
     // If we have a 'remove' change queued, it'll be the only change in the array
-    if (changes[0].type === 'remove') {
+    if (changes[0].type === "remove") {
       elements.splice(idx, 1);
       idx--;
       continue;
     }
 
-    if (changes[0].type === 'replace') {
+    if (changes[0].type === "replace") {
       // updatedElements.push({ ...changes[0].item });
       elements[idx] = { ...changes[0].item };
       continue;
@@ -136,23 +146,22 @@ function applyChanges(changes: any[], elements: ArrayWithInsort<any>): any[] {
 // Applies a single change to an element. This is a *mutable* update.
 function applyChange(change: any, element: any, elements: any[] = []): void {
   switch (change.type) {
-    case 'select': {
+    case "select": {
       element.selected = change.selected;
       break;
     }
 
-    case 'position': {
-      // console.log(["position", change.position])
-      if (typeof change.position !== 'undefined') {
+    case "position": {
+      if (typeof change.position !== "undefined") {
         element.position = change.position;
       }
 
-      if (typeof change.positionAbsolute !== 'undefined') {
+      if (typeof change.positionAbsolute !== "undefined") {
         element.computed ??= {};
         element.computed.positionAbsolute = change.positionAbsolute;
       }
 
-      if (typeof change.dragging !== 'undefined') {
+      if (typeof change.dragging !== "undefined") {
         element.dragging = change.dragging;
       }
 
@@ -162,8 +171,8 @@ function applyChange(change: any, element: any, elements: any[] = []): void {
       break;
     }
 
-    case 'dimensions': {
-    if (typeof change.dimensions !== 'undefined') {
+    case "dimensions": {
+      if (typeof change.dimensions !== "undefined") {
         const changeGeometry = {
           width: change.dimensions.width,
           height: change.dimensions.height,
@@ -173,19 +182,13 @@ function applyChange(change: any, element: any, elements: any[] = []): void {
 
         if (element.style) {
           Object.assign(element.style, changeGeometry);
-          element.style = {...element.style};
+          element.style = { ...element.style };
         }
-        // element.computed.width = change.dimensions.width;
-        // element.computed.height = change.dimensions.height;
 
-        if (change.resizing) {
-          Object.assign(element, changeGeometry);
-          // element.width = change.dimensions.width;
-          // element.height = change.dimensions.height;
-        }
+        if (change.resizing) Object.assign(element, changeGeometry);
       }
 
-      if (typeof change.resizing === 'boolean') {
+      if (typeof change.resizing === "boolean") {
         element.resizing = change.resizing;
       }
 
@@ -198,18 +201,10 @@ function applyChange(change: any, element: any, elements: any[] = []): void {
   }
 }
 
-
-export function applyNodeChanges(
-  changes: NodeChange[],
-  nodes: WrappedNodes
-) {
+export function applyNodeChanges(changes: NodeChange[], nodes: WrappedNodes) {
   return applyChanges(changes, nodes) as WrappedNodes;
 }
 
-
-export function applyEdgeChanges(
-  changes: EdgeChange[],
-  edges: WrappedEdges
-) {
+export function applyEdgeChanges(changes: EdgeChange[], edges: WrappedEdges) {
   return applyChanges(changes, edges) as WrappedEdges;
 }

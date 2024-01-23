@@ -1,36 +1,36 @@
-import React from 'react';
-import { Handle, Position, NodeProps } from 'reactflow';
+import React from "react";
+import { Handle, Position, NodeProps } from "reactflow";
 
-import Card from '@mui/material/Card';
+import Card from "@mui/material/Card";
 // import CardContent from '@mui/material/CardContent';
-import CardHeader from '@mui/material/CardHeader';
-import Avatar from '@mui/material/Avatar';
+import CardHeader from "@mui/material/CardHeader";
+import Avatar from "@mui/material/Avatar";
 // import IconButton from '@mui/material/IconButton';
-import ApiIcon from '@mui/icons-material/Api';
+import ApiIcon from "@mui/icons-material/Api";
 // import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-import { myFlowComponentAttrs } from '../constants';
-import { MyFlowComponentAttrsType } from '../types';
-
+import { myFlowComponentAttrs } from "../constants";
+import { MyFlowComponentAttrsType } from "../types";
 
 export type APIGatewayData = {
-  label?: string,
-}
+  label?: string;
+};
 
-export function APIGatewayBody (props: APIGatewayData) {
-  const {
-    label = "API Gateway",
-  } = props;
+export function APIGatewayBody(props: APIGatewayData) {
+  const { label = "API Gateway" } = props;
   return (
     <Card>
       <CardHeader
-        avatar={<Avatar><ApiIcon /></Avatar>}
+        avatar={
+          <Avatar>
+            <ApiIcon />
+          </Avatar>
+        }
         title={label}
       />
-  </Card>
-  )
+    </Card>
+  );
 }
-
 
 export function APIGateway(props: NodeProps<APIGatewayData>) {
   return (
@@ -40,7 +40,7 @@ export function APIGateway(props: NodeProps<APIGatewayData>) {
       <Handle type="source" position={Position.Right} id="out" />
       <Handle type="source" position={Position.Bottom} id="private" />
     </>
-  )
+  );
 }
 
 const meta: MyFlowComponentAttrsType = {

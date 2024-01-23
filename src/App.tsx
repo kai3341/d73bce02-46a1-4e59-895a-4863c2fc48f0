@@ -1,12 +1,9 @@
-import React from 'react';
+import React from "react";
 
-import { Projects } from './pages/projects';
-
+import { Projects } from "./pages/projects";
 
 function App() {
-  return (
-    <Projects />
-  );
+  return <Projects />;
 }
 
 export default App;

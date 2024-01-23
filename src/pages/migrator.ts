@@ -35,6 +35,7 @@ export type ConfigBodyGeneric<N, E> = {
 
 export type ConfigBody = ConfigBodyGeneric<Node[], Edge[]>
 
+export const newFlowData = () => ({ nodeID: 0, nodes: [], edges: [] } as FlowData)
 
 export const defaultConfigBodyFactory = () => ({
   view: {
@@ -55,7 +56,7 @@ export const defaultConfigBodyFactory = () => ({
       edges: [],
     },
     elements: {
-      "0": { nodeID: 0, nodes: [], edges: [] },
+      "0": newFlowData(),
     },
   },
 } as ConfigBody);

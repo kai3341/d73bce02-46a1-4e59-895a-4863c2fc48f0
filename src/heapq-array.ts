@@ -3,10 +3,9 @@
 
 // This implementation should be JSON serializable nativelly
 
-
 export class ArrayHeapq<T> extends Array<T> {
   // @ts-expect-error: 2564
-  comparator: (a: T, b: T) => boolean
+  comparator: (a: T, b: T) => boolean;
 
   heapPush(item: T) {
     this.push(item);
@@ -60,7 +59,7 @@ export class ArrayHeapq<T> extends Array<T> {
     if (newItem === undefined) return;
 
     while (pos > startPos) {
-      const parentPos = ((pos - 1) >> 1);
+      const parentPos = (pos - 1) >> 1;
       const parent = this[parentPos];
       if (this.comparator(newItem, parent)) {
         this[pos] = parent;
@@ -85,7 +84,10 @@ export class ArrayHeapq<T> extends Array<T> {
     let childPos: number = 2 * pos + 1;
     while (childPos < endPos) {
       const rightPos = childPos + 1;
-      if (rightPos < endPos && !this.comparator(this[childPos], this[rightPos])) {
+      if (
+        rightPos < endPos &&
+        !this.comparator(this[childPos], this[rightPos])
+      ) {
         childPos = rightPos;
       }
 

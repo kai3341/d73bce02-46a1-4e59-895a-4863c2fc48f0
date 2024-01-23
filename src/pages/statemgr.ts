@@ -1,6 +1,11 @@
-import { Node, Edge, NodeProps } from 'reactflow';
+import { Node, Edge, NodeProps } from "reactflow";
 
-import { wrapCached, toggleCached, HasWrapperGen } from "wrap-mutant/dist/caching";
+import {
+  wrapCached,
+  toggleCached,
+  HasWrapperGen,
+} from "wrap-mutant/dist/caching";
+
 import { bindCallables } from "wrap-mutant/dist/utils/bind-callables";
 
 import {
@@ -13,16 +18,17 @@ import {
 } from "~/components/flow";
 
 import { group } from "~/components/flow/constants";
-import { ArrayHeapq } from '~/heapq-array';
+import { ArrayHeapq } from "~/heapq-array";
 
 import {
   View,
+  Config,
   ConfigBody,
   FlowData,
   ConfigBodyGeneric,
   FlowDataGeneric,
-  ConfigGeneric,
   configVersion,
+  migrator,
 } from "./migrator";
 
 const indexKey = Symbol();
@@ -30,11 +36,11 @@ const indexKey = Symbol();
 type Index<T> = Map<string, T>;
 
 type HasInsort<T> = {
-  insort: (item: T) => void,
+  insort: (item: T) => void;
 };
 
 type HasIndex<T> = HasInsort<T> & {
-  [indexKey]: Index<T>,
+  [indexKey]: Index<T>;
 };
 
 export type IndexedArrayHeapq<T> = ArrayHeapq<T> & HasIndex<T>;
@@ -45,16 +51,15 @@ export type WrappedEdges = HasWrapperGen<ArrayWithInsort<Edge>>;
 export type ConfigBodyRuntime = ConfigBodyGeneric<WrappedNodes, WrappedEdges>;
 export type FlowDataRuntime = FlowDataGeneric<WrappedNodes, WrappedEdges>;
 
-
 const nodeTypesMap = {
   catalogue: FlowNodesCatalogueMap,
   elements: FlowNodesElementsMap,
-}
+};
 
 const nodeTypesElements = {
   catalogue: FlowNodesCatalogue,
   elements: FlowNodesElements,
-}
+};
 
 function concatMutable<T>(this: Array<T>, item: T) {
   this.push(item);
@@ -71,43 +76,38 @@ function mesureParentChain(index: Index<Node>, node: Node) {
   let depth = 0;
 
   while (node.parentNode) {
-    node = index.get(node.parentNode) as Node
+    node = index.get(node.parentNode) as Node;
     depth++;
   }
 
-  return depth
+  return depth;
 }
 
 function compareParentChain(index: Index<Node>, a: Node, b: Node) {
-  const depthA = mesureParentChain(index, a)
-  const depthB = mesureParentChain(index, b)
-  return depthA === depthB
-  ? 0
-  : depthA < depthB
-    ? -1
-    : 1
+  const depthA = mesureParentChain(index, a);
+  const depthB = mesureParentChain(index, b);
+  return depthA === depthB ? 0 : depthA < depthB ? -1 : 1;
 }
-
 
 function nodeComparator(this: IndexedArrayHeapq<Node>, a: Node, b: Node) {
   if (a.type === group) {
-    if (b.type === group) return compareParentChain(this[indexKey], a, b)
-    return -1
-  } else if (b.type === group) return 1
-  return 0
+    if (b.type === group) return compareParentChain(this[indexKey], a, b);
+    return -1;
+  } else if (b.type === group) return 1;
+  return 0;
 }
 
 function nodeComparatorBool(this: IndexedArrayHeapq<Node>, a: Node, b: Node) {
-  return -1 === nodeComparator.call(this, a, b);
+  return 0 >= nodeComparator.call(this, a, b);
 }
 
 const prepareEdgeArray = (entryArray: Edge[]) => {
   const withBoundCallables = bindCallables(entryArray) as ArrayWithInsort<Edge>;
   withBoundCallables.insort = withBoundCallables.push;
-  // @ts-expect-error: 12
+  // @ts-expect-error: 2322
   withBoundCallables.concat = concatMutable.bind(withBoundCallables);
   return wrapCached(withBoundCallables);
-}
+};
 
 const prepareNodeArray = (entryArray: Node[]) => {
   const heap = new ArrayHeapq();
@@ -125,7 +125,7 @@ const prepareFlowData = (entry: FlowData) => {
   entry.edges = prepareEdgeArray(entry.edges);
   // return wrapCached(entry);
   return entry as FlowDataRuntime;
-}
+};
 
 const prepareConfigBody = (config: ConfigBody) => {
   config.data.catalogue = prepareFlowData(config.data.catalogue);
@@ -133,58 +133,63 @@ const prepareConfigBody = (config: ConfigBody) => {
   for (const [key, value] of Array.from(Object.entries(elementsMap))) {
     elementsMap[key] = prepareFlowData(value);
   }
-  return config as ConfigBodyRuntime
-}
+  return config as ConfigBodyRuntime;
+};
 
 export class StateMGR {
   // @ts-expect-error: 2564
-  config: ConfigBodyRuntime
+  config: ConfigBodyRuntime;
   // @ts-expect-error: 2564
-  flowData: FlowDataRuntime
+  flowData: FlowDataRuntime;
   // @ts-expect-error: 2564
-  nodeTypes: FlowNodeTypeMap<NodeProps>
+  nodeTypes: FlowNodeTypeMap<NodeProps>;
   // @ts-expect-error: 2564
-  nodeComponents: FlowNodeComponent[]
+  nodeComponents: FlowNodeComponent[];
   // @ts-expect-error: 2564
-  onNodeDoubleClick: (event: React.MouseEvent, node: Node) => void
+  onNodeDoubleClick: (event: React.MouseEvent, node: Node) => void;
 
   constructor(config: ConfigBody) {
-    this.load(config);
+    this.loadBody(config);
   }
 
-  load = (config: ConfigBody) => {
+  loadBody = (config: ConfigBody) => {
     this.config = prepareConfigBody(config);
-    this.toggle(config.view);
-  }
+    this.toggle(config.view, false);
+  };
+
+  load = (rawConfig: Config) => {
+    const body = migrator(rawConfig);
+    this.loadBody(body);
+  };
 
   dump = () => {
-    const dumped: ConfigGeneric<ConfigBody> = {
-      version: configVersion, data: this.config
-    };
-    return dumped
-  }
+    return { version: configVersion, data: this.config } as Config;
+  };
 
-  onNodeDoubleClick__catalogue = (event: React.MouseEvent, node: Node) => {
-    this.toggle({ type: "elements", element: node.id } as View)
-  }
+  onNodeDoubleClickVariants = {
+    catalogue: (event: React.MouseEvent, node: Node) => {
+      this.toggle({ type: "elements", element: node.id } as View);
+    },
 
-  onNodeDoubleClick__elements = (event: React.MouseEvent, node: Node) => {
-    console.log("not implemented yet")
-  }
+    elements: (event: React.MouseEvent, node: Node) => {
+      console.log("not implemented yet");
+    },
+  };
 
-  toggle = (view: View) => {
-    this.nodeTypes = nodeTypesMap[view.type]
-    this.nodeComponents = nodeTypesElements[view.type]
+  flowDataGetters = {
+    catalogue: (view: View) => this.config.data.catalogue,
+    elements: (view: View) => this.config.data.elements[view.element],
+  };
 
-    if (view.type === "catalogue") {
-      this.flowData = this.config.data.catalogue;
-      this.onNodeDoubleClick = this.onNodeDoubleClick__catalogue;
-      return
-    }
+  toggle = (view: View, update = true) => {
+    const { type } = view;
+    this.nodeTypes = nodeTypesMap[type];
+    this.nodeComponents = nodeTypesElements[type];
+    this.onNodeDoubleClick = this.onNodeDoubleClickVariants[type];
+    this.flowData = this.flowDataGetters[type](view);
 
-    this.onNodeDoubleClick = this.onNodeDoubleClick__elements;
-    this.flowData = this.config.data.elements[view.element];
-  }
+    if (update) Object.assign(this.config.view, view);
+  };
 
   nextNodeID = () => {
     const { nodeID } = this.flowData;
