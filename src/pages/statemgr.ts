@@ -29,6 +29,7 @@ import {
   FlowDataGeneric,
   configVersion,
   migrator,
+  newFlowData,
 } from "./migrator";
 
 const indexKey = Symbol();
@@ -147,6 +148,8 @@ export class StateMGR {
   nodeComponents: FlowNodeComponent[];
   // @ts-expect-error: 2564
   onNodeDoubleClick: (event: React.MouseEvent, node: Node) => void;
+  // @ts-expect-error: 2564
+  onNodeAdd: (node: Node) => void;
 
   constructor(config: ConfigBody) {
     this.loadBody(config);
@@ -172,7 +175,16 @@ export class StateMGR {
     },
 
     elements: (event: React.MouseEvent, node: Node) => {
-      console.log("not implemented yet");
+      // console.log("not implemented yet");
+    },
+  };
+
+  onNodeAddVariants = {
+    catalogue: (node: Node) => {
+      this.config.data.elements[node.id] = prepareFlowData(newFlowData());
+    },
+    elements: (node: Node) => {
+      // console.log(["Added ELEMENT", node]);
     },
   };
 
@@ -186,6 +198,7 @@ export class StateMGR {
     this.nodeTypes = nodeTypesMap[type];
     this.nodeComponents = nodeTypesElements[type];
     this.onNodeDoubleClick = this.onNodeDoubleClickVariants[type];
+    this.onNodeAdd = this.onNodeAddVariants[type];
     this.flowData = this.flowDataGetters[type](view);
 
     if (update) Object.assign(this.config.view, view);

@@ -3,14 +3,17 @@ import {
   ResizableDynamicGroupData,
 } from "../ResizableDynamicGroup";
 
+import { SimpleNode, SimpleNodeData } from "./SimpleNode";
+
 import { myFlowComponentAttrs } from "../constants";
 import { FlowNodeComponent, FlowNodeTypeMap } from "../types";
 
 export const FlowNodesCatalogue = [
   ResizableDynamicGroup,
+  SimpleNode,
 ] as FlowNodeComponent[];
 
-export type FlowNodesCalalogueData = ResizableDynamicGroupData;
+export type FlowNodesCalalogueData = ResizableDynamicGroupData | SimpleNodeData;
 
 export const FlowNodesCatalogueMap: FlowNodeTypeMap = {};
 

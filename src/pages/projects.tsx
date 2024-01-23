@@ -130,7 +130,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
 
       const newNodeID = statemgr.nextNodeID();
 
-      const newNode = {
+      const newNode: Node = {
         id: newNodeID,
         type,
         position,
@@ -141,6 +141,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
       const nodes = statemgr.nodes;
       nodes.insort(newNode);
       statemgr.nodes = nodes;
+      statemgr.onNodeAdd(newNode);
 
       updateStatemgr(statemgr);
     },
@@ -195,17 +196,27 @@ export function ProjectsInner(props: ProjectsInnerProps) {
       if (firstGroup.height && position.y > firstGroup.height)
         position.y = firstGroup.height;
 
-      nodes.insort({
+      const newNode: Node = {
         ...draggedNode,
         parentNode: firstGroup.id,
         extent: "parent",
         position,
-      });
+      };
+
+      nodes.insort(newNode);
 
       statemgr.nodes = nodes;
       updateStatemgr(statemgr);
     },
     [statemgr, updateStatemgr, getIntersectingNodes],
+  );
+
+  const onNodeDoubleClick = useCallback(
+    (event: React.MouseEvent, node: Node) => {
+      statemgr.onNodeDoubleClick(event, node);
+      updateStatemgr(statemgr);
+    },
+    [statemgr, updateStatemgr],
   );
 
   return (
@@ -238,7 +249,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
         onDrop={onDrop}
         onDragOver={onDragOver}
         onNodeDragStop={onNodeDragStop}
-        onNodeDoubleClick={statemgr.onNodeDoubleClick}
+        onNodeDoubleClick={onNodeDoubleClick}
       >
         <Background variant={BackgroundVariant.Lines} lineWidth={2} />
         <Controls position="bottom-right" />
