@@ -26,7 +26,6 @@ import {
 } from "./migrator";
 
 const indexKey = Symbol();
-// export const inSortKey = Symbol();
 
 type Index<T> = Map<string, T>;
 
@@ -146,6 +145,8 @@ export class StateMGR {
   nodeTypes: FlowNodeTypeMap<NodeProps>
   // @ts-expect-error: 2564
   nodeComponents: FlowNodeComponent[]
+  // @ts-expect-error: 2564
+  onNodeDoubleClick: (event: React.MouseEvent, node: Node) => void
 
   constructor(config: ConfigBody) {
     this.load(config);
@@ -163,15 +164,25 @@ export class StateMGR {
     return dumped
   }
 
+  onNodeDoubleClick__catalogue = (event: React.MouseEvent, node: Node) => {
+    this.toggle({ type: "elements", element: node.id } as View)
+  }
+
+  onNodeDoubleClick__elements = (event: React.MouseEvent, node: Node) => {
+    console.log("not implemented yet")
+  }
+
   toggle = (view: View) => {
     this.nodeTypes = nodeTypesMap[view.type]
     this.nodeComponents = nodeTypesElements[view.type]
 
     if (view.type === "catalogue") {
       this.flowData = this.config.data.catalogue;
+      this.onNodeDoubleClick = this.onNodeDoubleClick__catalogue;
       return
     }
 
+    this.onNodeDoubleClick = this.onNodeDoubleClick__elements;
     this.flowData = this.config.data.elements[view.element];
   }
 

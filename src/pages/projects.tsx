@@ -21,7 +21,7 @@ import ReactFlow, {
   EdgeChange,
 } from 'reactflow';
 
-import { wrapCached, toggleCached, HasWrapperGen } from 'wrap-mutant/dist/caching';
+import { wrapCached, HasWrapperGen } from 'wrap-mutant/dist/caching';
 
 import Drawer from '@mui/material/Drawer';
 
@@ -29,10 +29,10 @@ import MenuIcon from '@mui/icons-material/Menu';
 
 import "./projects.css";
 
+import { useWMState } from '~/useWMState';
+
 import {
-  // FlowNodes,
   myFlowComponentAttrs,
-  // FlowNodeTypeMap,
   dataTransferKey,
   drogDropEffectName,
   group,
@@ -76,34 +76,34 @@ export function ProjectsInner(props: ProjectsInnerProps) {
   const [reactFlowInstance, setReactFlowInstance] = useState<ReactFlowInstance|null>(null);
   const { getIntersectingNodes } = useReactFlow();
 
-  const [ statemgr, setStatemgr ] = useState(props.statemgr);
+  const [ statemgr, updateStatemgr ] = useWMState(props.statemgr);
 
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       const nodes = statemgr.nodes;
       statemgr.nodes = applyNodeChanges(changes, nodes);
-      setStatemgr(toggleCached(statemgr));
+      updateStatemgr(statemgr);
     },
-    [statemgr, setStatemgr],
+    [statemgr, updateStatemgr],
   );
 
   const onEdgesChange = useCallback(
     (changes: EdgeChange[]) => {
       const edges = statemgr.edges;
       statemgr.edges = applyEdgeChanges(changes, edges);
-      setStatemgr(toggleCached(statemgr));
+      updateStatemgr(statemgr);
     },
-    [statemgr, setStatemgr],
+    [statemgr, updateStatemgr],
   );
 
   const onConnect = useCallback(
     (connection: Connection) => {
       const edges = statemgr.edges;
       statemgr.edges = addEdge(connection, edges) as WrappedEdges;
-      setStatemgr(toggleCached(statemgr));
+      updateStatemgr(statemgr);
     },
-    [statemgr, setStatemgr],
+    [statemgr, updateStatemgr],
   );
 
   const openDrawer = useCallback(() => setDrawerState(true), [setDrawerState]);
@@ -143,9 +143,9 @@ export function ProjectsInner(props: ProjectsInnerProps) {
       nodes.insort(newNode);
       statemgr.nodes = nodes;
 
-      setStatemgr(toggleCached(statemgr));
+      updateStatemgr(statemgr);
     },
-    [ reactFlowInstance, statemgr, setStatemgr ],
+    [ reactFlowInstance, statemgr, updateStatemgr ],
   );
 
   const onNodeDragStop = useCallback(
@@ -208,7 +208,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
       // };
 
       statemgr.nodes = nodes;
-      setStatemgr(toggleCached(statemgr));
+      updateStatemgr(statemgr);
 
     //   const nodeSorter = new NodeSorter(nodes);
     //   if (nodeSorter.isParent(draggedNode, firstGroup)) return;
@@ -243,7 +243,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
     //     return newNodes;
     //   })
     },
-    [statemgr, setStatemgr, getIntersectingNodes],
+    [statemgr, updateStatemgr, getIntersectingNodes],
   );
   
 
@@ -262,7 +262,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
       >
         <SideMenu
           statemgr={statemgr}
-          setStatemgr={setStatemgr}
+          updateStatemgr={updateStatemgr}
           closeDrawer={closeDrawer}
         />
       </Drawer>
@@ -280,6 +280,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
         onDrop={onDrop}
         onDragOver={onDragOver}
         onNodeDragStop={onNodeDragStop}
+        onNodeDoubleClick={statemgr.onNodeDoubleClick}
       >
         <Background
           variant={BackgroundVariant.Lines}
@@ -293,7 +294,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
 
 export function Projects(props: ProjectsProps) {
   // eslint-disable-next-line
-  const [ statemgr, setStatemgr ] = useState(
+  const [ statemgr, updateStatemgr ] = useState(
     wrapCached(new StateMGR(defaultConfigBodyFactory()))
   )
   return (

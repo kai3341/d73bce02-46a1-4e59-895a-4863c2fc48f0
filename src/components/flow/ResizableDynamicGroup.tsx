@@ -1,15 +1,8 @@
 import React, { memo } from 'react';
-import {
-  NodeResizer, 
-  NodeProps,
-} from 'reactflow';
+import { NodeResizer, NodeProps} from 'reactflow';
 
-import {
-  myFlowComponentAttrs,
-  myFlowComponentAttrsType,
-  MyMemoExoticComponent,
-  group,
-} from './constants';
+import { myFlowComponentAttrs, group } from './constants';
+import { MyMemoExoticComponent, MyFlowComponentAttrsType } from './types';
 
 
 export type ResizableDynamicGroupData = {
@@ -30,7 +23,7 @@ function ResizableDynamicGroup_({ selected }: ResizableDynamicGroupProps) {
 
 export const ResizableDynamicGroup = memo(ResizableDynamicGroup_) as MyMemoExoticComponent<ResizableDynamicGroupProps>;
 
-const meta: myFlowComponentAttrsType = {
+const meta: MyFlowComponentAttrsType = {
   key: group,
   Body: ResizableDynamicGroupBody,
   defaultProps: {

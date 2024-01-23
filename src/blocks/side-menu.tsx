@@ -8,8 +8,9 @@ import UploadFileIcon from '@mui/icons-material/UploadFile';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
 import DeleteForeverIcon from '@mui/icons-material/DeleteForever';
 // import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
+import KeyboardDoubleArrowUpIcon from '@mui/icons-material/KeyboardDoubleArrowUp';
 
-import {  toggleCached, HasWrapperGen } from 'wrap-mutant/dist/caching';
+import {  HasWrapperGen } from 'wrap-mutant/dist/caching';
 import { saveAs } from 'file-saver';
 
 import { HiddenInput } from '~/components/HiddenInput/HiddenInput';
@@ -20,7 +21,7 @@ import {
   drogDropEffectName,
 } from '~/components/flow';
 
-import { Config, migrator, defaultConfigBodyFactory } from '~/pages/migrator';
+import { Config, View, migrator, defaultConfigBodyFactory } from '~/pages/migrator';
 import { StateMGR } from '~/pages/statemgr';
 
 
@@ -59,11 +60,11 @@ const RenderFlowNodes = (props: RenderFlowNodesProps) => {
 
 export type SideMenuProps = {
   statemgr: WrappedStateMGR,
-  setStatemgr: (statemgr: WrappedStateMGR) => void,
+  updateStatemgr: (statemgr: WrappedStateMGR) => void,
   closeDrawer: () => void,
 }
 
-export function SideMenu({statemgr, setStatemgr, closeDrawer}: SideMenuProps) {
+export function SideMenu({statemgr, updateStatemgr, closeDrawer}: SideMenuProps) {
   return (
     <Box className="page-projects-drawer-content">
       <Box className="page-projects-drawer-content-controls">
@@ -79,7 +80,7 @@ export function SideMenu({statemgr, setStatemgr, closeDrawer}: SideMenuProps) {
               const uploadJSON = JSON.parse(uploadData) as Config;
               const body = migrator(uploadJSON);
               statemgr.load(body);
-              setStatemgr(toggleCached(statemgr));
+              updateStatemgr(statemgr);
             }}>
               <UploadFileIcon/>
             </HiddenInput>
@@ -100,9 +101,19 @@ export function SideMenu({statemgr, setStatemgr, closeDrawer}: SideMenuProps) {
           <IconButton onClick={() => {
             // FIXME: actually we have to open modal and ask does the user sure
             statemgr.load(defaultConfigBodyFactory());
-            setStatemgr(toggleCached(statemgr));
+            updateStatemgr(statemgr);
           }}>
             <DeleteForeverIcon color="warning" />
+          </IconButton>
+          <IconButton
+            disabled={statemgr.config.view.type === "catalogue"}
+            color={"info"}
+            onClick={() => {
+              statemgr.toggle({ type: "catalogue" } as View);
+              updateStatemgr(statemgr);
+            }}
+          >
+            <KeyboardDoubleArrowUpIcon />
           </IconButton>
         </Box>
         <CloseIcon

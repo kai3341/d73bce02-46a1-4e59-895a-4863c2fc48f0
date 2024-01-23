@@ -9,7 +9,8 @@ import Avatar from '@mui/material/Avatar';
 import StorageIcon from '@mui/icons-material/Storage';
 // import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-import { myFlowComponentAttrs, myFlowComponentAttrsType } from './constants';
+import { myFlowComponentAttrs } from '../constants';
+import { MyFlowComponentAttrsType } from '../types';
 
 
 export type DatabaseData = {
@@ -26,11 +27,6 @@ export function DatabaseBody(props: DatabaseData) {
       <CardHeader
         avatar={<Avatar><StorageIcon /></Avatar>}
         title={label}
-        // action={
-        //   <IconButton aria-label="settings">
-        //     <MoreVertIcon />
-        //   </IconButton>
-        // }
       />
     </Card>
   )
@@ -45,7 +41,7 @@ export function Database(props: NodeProps<DatabaseData>) {
   )
 }
 
-const meta: myFlowComponentAttrsType = {
+const meta: MyFlowComponentAttrsType = {
   key: "database",
   Body: DatabaseBody,
   // TODO: add configurer

@@ -9,7 +9,9 @@ import Avatar from '@mui/material/Avatar';
 import ApiIcon from '@mui/icons-material/Api';
 // import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-import { myFlowComponentAttrs, myFlowComponentAttrsType } from './constants';
+import { myFlowComponentAttrs } from '../constants';
+import { MyFlowComponentAttrsType } from '../types';
+
 
 export type APIGatewayData = {
   label?: string,
@@ -24,11 +26,6 @@ export function APIGatewayBody (props: APIGatewayData) {
       <CardHeader
         avatar={<Avatar><ApiIcon /></Avatar>}
         title={label}
-        // action={
-        //   <IconButton aria-label="settings">
-        //     <MoreVertIcon />
-        //   </IconButton>
-        // }
       />
   </Card>
   )
@@ -46,7 +43,7 @@ export function APIGateway(props: NodeProps<APIGatewayData>) {
   )
 }
 
-const meta: myFlowComponentAttrsType = {
+const meta: MyFlowComponentAttrsType = {
   key: "apigateway",
   Body: APIGatewayBody,
 };

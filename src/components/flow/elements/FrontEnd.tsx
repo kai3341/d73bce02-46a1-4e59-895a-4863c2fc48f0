@@ -9,7 +9,8 @@ import Avatar from '@mui/material/Avatar';
 import WebIcon from '@mui/icons-material/Web';
 // import MoreVertIcon from '@mui/icons-material/MoreVert';
 
-import { myFlowComponentAttrs ,myFlowComponentAttrsType } from './constants';
+import { myFlowComponentAttrs } from '../constants';
+import { MyFlowComponentAttrsType } from '../types';
 
 export type FrontEndData = {
 //   label: string,
@@ -20,11 +21,6 @@ export function FrontEndBody(props: FrontEndData) {
     <Card>
       <CardHeader
         avatar={<Avatar><WebIcon /></Avatar>}
-        // action={
-        //   <IconButton aria-label="settings">
-        //     <MoreVertIcon />
-        //   </IconButton>
-        // }
       />
     </Card>
   )
@@ -39,7 +35,7 @@ export function FrontEnd(props: NodeProps<FrontEndData>) {
   )
 }
 
-const meta: myFlowComponentAttrsType = {
+const meta: MyFlowComponentAttrsType = {
   key: "frontend",
   Body: FrontEndBody,
 }
