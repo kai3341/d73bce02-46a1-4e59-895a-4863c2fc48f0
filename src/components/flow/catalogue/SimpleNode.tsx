@@ -1,5 +1,5 @@
 import React from "react";
-import { NodeProps } from "reactflow";
+import { Handle, Position, NodeProps } from "reactflow";
 import { myFlowComponentAttrs } from "../constants";
 import { MyFlowComponentAttrsType } from "../types";
 
@@ -13,7 +13,13 @@ export function SimpleNodeBody(props: SimpleNodeData) {
 }
 
 export function SimpleNode(props: NodeProps<SimpleNodeData>) {
-  return <SimpleNodeBody {...props.data} />;
+  return (
+    <>
+      <SimpleNodeBody {...props.data} />
+      <Handle type="target" position={Position.Left} id="in" />
+      <Handle type="source" position={Position.Right} id="out" />
+    </>
+  );
 }
 
 const meta: MyFlowComponentAttrsType = {
