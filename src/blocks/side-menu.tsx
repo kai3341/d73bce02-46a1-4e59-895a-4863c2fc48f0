@@ -10,7 +10,7 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 // import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 
-import { HasWrapperGen } from "wrap-mutant/dist/caching";
+import { HasWrapperGen } from "@wrap-mutant/react";
 import { saveAs } from "file-saver";
 
 import { HiddenInput } from "~/components/HiddenInput/HiddenInput";
@@ -21,8 +21,8 @@ import {
   drogDropEffectName,
 } from "~/components/flow";
 
-import { Config, View, defaultConfigBodyFactory } from "~/pages/migrator";
-import { StateMGR } from "~/pages/statemgr";
+import { Config, View, defaultConfigBodyFactory } from "~/lib/migrator";
+import { StateMGR } from "~/lib/statemgr";
 
 type WrappedStateMGR = HasWrapperGen<StateMGR>;
 
@@ -59,15 +59,15 @@ const RenderFlowNodes = (props: RenderFlowNodesProps) => {
 
 export type SideMenuProps = {
   statemgr: WrappedStateMGR;
-  updateStatemgr: (statemgr: WrappedStateMGR) => void;
+  updateStatemgr: (value: WrappedStateMGR) => void;
   closeDrawer: () => void;
 };
 
-export function SideMenu({
+export const SideMenu = ({
   statemgr,
   updateStatemgr,
   closeDrawer,
-}: SideMenuProps) {
+}: SideMenuProps) => {
   return (
     <Box className="page-projects-drawer-content">
       <Box className="page-projects-drawer-content-controls">
@@ -129,4 +129,4 @@ export function SideMenu({
       </Box>
     </Box>
   );
-}
+};

@@ -18,15 +18,13 @@ import ReactFlow, {
   EdgeChange,
 } from "reactflow";
 
-import { wrapCached, HasWrapperGen } from "wrap-mutant/dist/caching";
+import { useWMState } from "@wrap-mutant/react";
 
 import Drawer from "@mui/material/Drawer";
 
 import MenuIcon from "@mui/icons-material/Menu";
 
 import "./projects.css";
-
-import { useWMState } from "~/useWMState";
 
 import {
   myFlowComponentAttrs,
@@ -36,22 +34,20 @@ import {
 } from "~/components/flow";
 
 import { SideMenu } from "~/blocks/side-menu";
-import { StateMGR, WrappedEdges } from "./statemgr";
+import { StateMGR, WrappedEdges } from "~/lib/statemgr";
 
-import { defaultConfigBodyFactory } from "./migrator";
+import { defaultConfigBodyFactory } from "~/lib/migrator";
 import {
   applyEdgeChanges,
   applyNodeChanges,
-} from "./reactflow-changes-mutable";
+} from "~/lib/reactflow-changes-mutable";
 
 export type ProjectsProps = {
   //
 };
 
-type WrappedStateMGR = HasWrapperGen<StateMGR>;
-
 export type ProjectsInnerProps = {
-  statemgr: WrappedStateMGR;
+  //
 };
 
 const fitViewOptions: FitViewOptions = {
@@ -68,13 +64,15 @@ const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
   event.dataTransfer.dropEffect = drogDropEffectName;
 };
 
+const stateMGRFactory = () => new StateMGR(defaultConfigBodyFactory());
+
 export function ProjectsInner(props: ProjectsInnerProps) {
   const [drawerState, setDrawerState] = useState<boolean>(true);
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
   const { getIntersectingNodes } = useReactFlow();
 
-  const [statemgr, updateStatemgr] = useWMState(props.statemgr);
+  const [statemgr, updateStatemgr] = useWMState(stateMGRFactory);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
@@ -259,13 +257,9 @@ export function ProjectsInner(props: ProjectsInnerProps) {
 }
 
 export function Projects(props: ProjectsProps) {
-  // eslint-disable-next-line
-  const [statemgr, updateStatemgr] = useState(
-    wrapCached(new StateMGR(defaultConfigBodyFactory())),
-  );
   return (
     <ReactFlowProvider>
-      <ProjectsInner statemgr={statemgr} />
+      <ProjectsInner />
     </ReactFlowProvider>
   );
 }
