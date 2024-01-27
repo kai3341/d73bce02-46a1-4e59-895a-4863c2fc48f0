@@ -67,7 +67,7 @@ const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
 const stateMGRFactory = () => new StateMGR(defaultConfigBodyFactory());
 
 export function ProjectsInner(props: ProjectsInnerProps) {
-  const [drawerState, setDrawerState] = useState<boolean>(true);
+  const [drawerState, setDrawerState] = useState(true);
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
   const { getIntersectingNodes } = useReactFlow();
@@ -78,7 +78,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
     (changes: NodeChange[]) => {
       const nodes = statemgr.nodes;
       statemgr.nodes = applyNodeChanges(changes, nodes);
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [statemgr, updateStatemgr],
   );
@@ -87,7 +87,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
     (changes: EdgeChange[]) => {
       const edges = statemgr.edges;
       statemgr.edges = applyEdgeChanges(changes, edges);
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [statemgr, updateStatemgr],
   );
@@ -96,7 +96,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
     (connection: Connection) => {
       const edges = statemgr.edges;
       statemgr.edges = addEdge(connection, edges) as WrappedEdges;
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [statemgr, updateStatemgr],
   );
@@ -141,7 +141,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
       statemgr.nodes = nodes;
       statemgr.onNodeAdd(newNode);
 
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [reactFlowInstance, statemgr, updateStatemgr],
   );
@@ -204,7 +204,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
       nodes.insort(newNode);
 
       statemgr.nodes = nodes;
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [statemgr, updateStatemgr, getIntersectingNodes],
   );
@@ -212,7 +212,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
   const onNodeDoubleClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
       statemgr.onNodeDoubleClick(event, node);
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [statemgr, updateStatemgr],
   );

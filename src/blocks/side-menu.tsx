@@ -10,7 +10,7 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 // import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 
-import { HasWrapperGen } from "@wrap-mutant/react";
+// import { HasWrapperGen } from "@wrap-mutant/react";
 import { saveAs } from "file-saver";
 
 import { HiddenInput } from "~/components/HiddenInput/HiddenInput";
@@ -24,7 +24,8 @@ import {
 import { Config, View, defaultConfigBodyFactory } from "~/lib/migrator";
 import { StateMGR } from "~/lib/statemgr";
 
-type WrappedStateMGR = HasWrapperGen<StateMGR>;
+// type WrappedStateMGR = HasWrapperGen<StateMGR>;
+type WrappedStateMGR = StateMGR;
 
 const onDragStart = (
   event: React.DragEvent<HTMLDivElement>,
@@ -59,7 +60,7 @@ const RenderFlowNodes = (props: RenderFlowNodesProps) => {
 
 export type SideMenuProps = {
   statemgr: WrappedStateMGR;
-  updateStatemgr: (value: WrappedStateMGR) => void;
+  updateStatemgr: () => void;
   closeDrawer: () => void;
 };
 
@@ -84,7 +85,7 @@ export const SideMenu = ({
                 const uploadData = await file.text();
                 const uploadJSON = JSON.parse(uploadData) as Config;
                 statemgr.load(uploadJSON);
-                updateStatemgr(statemgr);
+                updateStatemgr();
               }}
             >
               <UploadFileIcon />
@@ -106,7 +107,7 @@ export const SideMenu = ({
             onClick={() => {
               // FIXME: actually we have to open modal and ask does the user sure
               statemgr.loadBody(defaultConfigBodyFactory());
-              updateStatemgr(statemgr);
+              updateStatemgr();
             }}
           >
             <DeleteForeverIcon color="warning" />
@@ -116,7 +117,7 @@ export const SideMenu = ({
             color={"info"}
             onClick={() => {
               statemgr.toggle({ type: "catalogue" } as View);
-              updateStatemgr(statemgr);
+              updateStatemgr();
             }}
           >
             <KeyboardDoubleArrowUpIcon />
