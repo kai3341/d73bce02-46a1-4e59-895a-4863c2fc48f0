@@ -16,9 +16,7 @@
     "@types/node": "^16.18.71",
     "@types/react": "^18.2.48",
     "@types/react-dom": "^18.2.18",
-    "@wrap-mutant/core": "file:../../wrap-mutant/pack/wrap-mutant-core-0.0.1.tgz",
-    "@wrap-mutant/react": "file:../../wrap-mutant/pack/wrap-mutant-react-0.0.1.tgz",
-    "@wrap-mutant/utils": "file:../../wrap-mutant/pack/wrap-mutant-utils-0.0.1.tgz",
+    "@wrap-mutant/react": "^0.0.1",
     "babel-plugin-root-import": "^6.6.0",
     "babel-preset-react-app": "^10.0.1",
     "customize-cra": "^1.0.0",
@@ -36,7 +34,8 @@
     "build": "react-app-rewired build",
     "test": "react-app-rewired test",
     "eject": "react-app-rewired eject",
-    "deploy": "node .deploy.js"
+    "deploy": "node .deploy.js",
+    "serve": "node serve.cjs"
   },
   "eslintConfig": {
     "extends": [
