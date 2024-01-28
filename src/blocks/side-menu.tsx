@@ -10,7 +10,7 @@ import DeleteForeverIcon from "@mui/icons-material/DeleteForever";
 // import AutoAwesomeIcon from '@mui/icons-material/AutoAwesome';
 import KeyboardDoubleArrowUpIcon from "@mui/icons-material/KeyboardDoubleArrowUp";
 
-import { HasWrapperGen } from "wrap-mutant/dist/caching";
+// import { HasWrapperGen } from "@wrap-mutant/react";
 import { saveAs } from "file-saver";
 
 import { HiddenInput } from "~/components/HiddenInput/HiddenInput";
@@ -21,10 +21,11 @@ import {
   drogDropEffectName,
 } from "~/components/flow";
 
-import { Config, View, defaultConfigBodyFactory } from "~/pages/migrator";
-import { StateMGR } from "~/pages/statemgr";
+import { Config, View, defaultConfigBodyFactory } from "~/lib/migrator";
+import { StateMGR } from "~/lib/statemgr";
 
-type WrappedStateMGR = HasWrapperGen<StateMGR>;
+// type WrappedStateMGR = HasWrapperGen<StateMGR>;
+type WrappedStateMGR = StateMGR;
 
 const onDragStart = (
   event: React.DragEvent<HTMLDivElement>,
@@ -59,15 +60,15 @@ const RenderFlowNodes = (props: RenderFlowNodesProps) => {
 
 export type SideMenuProps = {
   statemgr: WrappedStateMGR;
-  updateStatemgr: (statemgr: WrappedStateMGR) => void;
+  updateStatemgr: () => void;
   closeDrawer: () => void;
 };
 
-export function SideMenu({
+export const SideMenu = ({
   statemgr,
   updateStatemgr,
   closeDrawer,
-}: SideMenuProps) {
+}: SideMenuProps) => {
   return (
     <Box className="page-projects-drawer-content">
       <Box className="page-projects-drawer-content-controls">
@@ -84,7 +85,7 @@ export function SideMenu({
                 const uploadData = await file.text();
                 const uploadJSON = JSON.parse(uploadData) as Config;
                 statemgr.load(uploadJSON);
-                updateStatemgr(statemgr);
+                updateStatemgr();
               }}
             >
               <UploadFileIcon />
@@ -106,7 +107,7 @@ export function SideMenu({
             onClick={() => {
               // FIXME: actually we have to open modal and ask does the user sure
               statemgr.loadBody(defaultConfigBodyFactory());
-              updateStatemgr(statemgr);
+              updateStatemgr();
             }}
           >
             <DeleteForeverIcon color="warning" />
@@ -116,7 +117,7 @@ export function SideMenu({
             color={"info"}
             onClick={() => {
               statemgr.toggle({ type: "catalogue" } as View);
-              updateStatemgr(statemgr);
+              updateStatemgr();
             }}
           >
             <KeyboardDoubleArrowUpIcon />
@@ -129,4 +130,4 @@ export function SideMenu({
       </Box>
     </Box>
   );
-}
+};

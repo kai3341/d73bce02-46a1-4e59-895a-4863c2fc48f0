@@ -1,12 +1,6 @@
 import { Node, Edge, NodeProps } from "reactflow";
 
-import {
-  wrapCached,
-  toggleCached,
-  HasWrapperGen,
-} from "wrap-mutant/dist/caching";
-
-import { bindCallables } from "wrap-mutant/dist/utils/bind-callables";
+import { wrap, toggle, bindCallables, HasWrapperGen } from "@wrap-mutant/react";
 
 import {
   FlowNodesElementsMap,
@@ -18,7 +12,7 @@ import {
 } from "~/components/flow";
 
 import { group } from "~/components/flow/constants";
-import { ArrayHeapq } from "~/heapq-array";
+import { ArrayHeapq } from "~/lib/heapq-array";
 
 import {
   View,
@@ -107,7 +101,7 @@ const prepareEdgeArray = (entryArray: Edge[]) => {
   withBoundCallables.insort = withBoundCallables.push;
   // @ts-expect-error: 2322
   withBoundCallables.concat = concatMutable.bind(withBoundCallables);
-  return wrapCached(withBoundCallables);
+  return wrap(withBoundCallables);
 };
 
 const prepareNodeArray = (entryArray: Node[]) => {
@@ -118,7 +112,7 @@ const prepareNodeArray = (entryArray: Node[]) => {
   withBoundCallables.insort = currentInsort;
   withBoundCallables[indexKey] = new Map();
   for (const node of entryArray) currentInsort(node);
-  return wrapCached(withBoundCallables);
+  return wrap(withBoundCallables);
 };
 
 const prepareFlowData = (entry: FlowData) => {
@@ -215,7 +209,7 @@ export class StateMGR {
   }
 
   set nodes(nodes: WrappedNodes) {
-    this.flowData.nodes = toggleCached(nodes);
+    this.flowData.nodes = toggle(nodes);
   }
 
   get edges() {
@@ -223,6 +217,6 @@ export class StateMGR {
   }
 
   set edges(edges: WrappedEdges) {
-    this.flowData.edges = toggleCached(edges);
+    this.flowData.edges = toggle(edges);
   }
 }

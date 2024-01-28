@@ -18,15 +18,13 @@ import ReactFlow, {
   EdgeChange,
 } from "reactflow";
 
-import { wrapCached, HasWrapperGen } from "wrap-mutant/dist/caching";
+import { useWMState } from "@wrap-mutant/react";
 
 import Drawer from "@mui/material/Drawer";
 
 import MenuIcon from "@mui/icons-material/Menu";
 
 import "./projects.css";
-
-import { useWMState } from "~/useWMState";
 
 import {
   myFlowComponentAttrs,
@@ -36,22 +34,20 @@ import {
 } from "~/components/flow";
 
 import { SideMenu } from "~/blocks/side-menu";
-import { StateMGR, WrappedEdges } from "./statemgr";
+import { StateMGR, WrappedEdges } from "~/lib/statemgr";
 
-import { defaultConfigBodyFactory } from "./migrator";
+import { defaultConfigBodyFactory } from "~/lib/migrator";
 import {
   applyEdgeChanges,
   applyNodeChanges,
-} from "./reactflow-changes-mutable";
+} from "~/lib/reactflow-changes-mutable";
 
 export type ProjectsProps = {
   //
 };
 
-type WrappedStateMGR = HasWrapperGen<StateMGR>;
-
 export type ProjectsInnerProps = {
-  statemgr: WrappedStateMGR;
+  //
 };
 
 const fitViewOptions: FitViewOptions = {
@@ -68,19 +64,21 @@ const onDragOver = (event: React.DragEvent<HTMLDivElement>) => {
   event.dataTransfer.dropEffect = drogDropEffectName;
 };
 
+const stateMGRFactory = () => new StateMGR(defaultConfigBodyFactory());
+
 export function ProjectsInner(props: ProjectsInnerProps) {
-  const [drawerState, setDrawerState] = useState<boolean>(true);
+  const [drawerState, setDrawerState] = useState(true);
   const [reactFlowInstance, setReactFlowInstance] =
     useState<ReactFlowInstance | null>(null);
   const { getIntersectingNodes } = useReactFlow();
 
-  const [statemgr, updateStatemgr] = useWMState(props.statemgr);
+  const [statemgr, updateStatemgr] = useWMState(stateMGRFactory);
 
   const onNodesChange = useCallback(
     (changes: NodeChange[]) => {
       const nodes = statemgr.nodes;
       statemgr.nodes = applyNodeChanges(changes, nodes);
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [statemgr, updateStatemgr],
   );
@@ -89,7 +87,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
     (changes: EdgeChange[]) => {
       const edges = statemgr.edges;
       statemgr.edges = applyEdgeChanges(changes, edges);
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [statemgr, updateStatemgr],
   );
@@ -98,7 +96,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
     (connection: Connection) => {
       const edges = statemgr.edges;
       statemgr.edges = addEdge(connection, edges) as WrappedEdges;
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [statemgr, updateStatemgr],
   );
@@ -143,7 +141,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
       statemgr.nodes = nodes;
       statemgr.onNodeAdd(newNode);
 
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [reactFlowInstance, statemgr, updateStatemgr],
   );
@@ -206,7 +204,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
       nodes.insort(newNode);
 
       statemgr.nodes = nodes;
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [statemgr, updateStatemgr, getIntersectingNodes],
   );
@@ -214,7 +212,7 @@ export function ProjectsInner(props: ProjectsInnerProps) {
   const onNodeDoubleClick = useCallback(
     (event: React.MouseEvent, node: Node) => {
       statemgr.onNodeDoubleClick(event, node);
-      updateStatemgr(statemgr);
+      updateStatemgr();
     },
     [statemgr, updateStatemgr],
   );
@@ -259,13 +257,9 @@ export function ProjectsInner(props: ProjectsInnerProps) {
 }
 
 export function Projects(props: ProjectsProps) {
-  // eslint-disable-next-line
-  const [statemgr, updateStatemgr] = useState(
-    wrapCached(new StateMGR(defaultConfigBodyFactory())),
-  );
   return (
     <ReactFlowProvider>
-      <ProjectsInner statemgr={statemgr} />
+      <ProjectsInner />
     </ReactFlowProvider>
   );
 }

@@ -5,7 +5,11 @@
 // import { EdgeLookup, NodeLookup } from '@xyflow/system';
 import type { EdgeChange, NodeChange } from "reactflow";
 
-import type { WrappedNodes, WrappedEdges, ArrayWithInsort } from "./statemgr";
+import type {
+  WrappedNodes,
+  WrappedEdges,
+  ArrayWithInsort,
+} from "~/lib/statemgr";
 
 // type AnyElements = WrappedNodes|WrappedEdges;
 
